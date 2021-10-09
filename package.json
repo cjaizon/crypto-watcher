@@ -1,12 +1,11 @@
 {
     "name": "crypto-watcher",
     "description": "A simple watcher for cryptocurrencies",
-    "main": "src/bot.js",
-    "type": "module",
+    "main": "src/bot.mjs",
     "scripts": {
         "dev": "nodemon",
-        "start": "node ./src/bot.js",
-        "commands": "node ./src/deploy-commands.js"
+        "start": "node ./src/bot.mjs",
+        "commands": "node ./src/deploy-commands.mjs"
     },
     "keywords": [
         "crypto",
@@ -15,7 +14,7 @@
         "bot"
     ],
     "author": "Jaizon Carlos",
-    "license": "ISC",
+    "license": "ISC",git
     "engines": {
         "node": ">=16.6"
     },
