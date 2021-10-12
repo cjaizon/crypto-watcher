@@ -1,9 +1,14 @@
 import { Client } from 'discord.js'
 import dotenv from 'dotenv'
 import fetch from 'node-fetch'
+// import commands file to have acces to registered commands
+import commands from './deploy-commands.js'
+const choices = commands[0].options[0].choices
 
 dotenv.config()
 const bot = new Client({ intents: ['GUILDS', 'GUILD_MESSAGES'] })
+// prefix
+const prefix = '$'
 
 // -- Functions
 // Fetch the requested coin
@@ -49,37 +54,27 @@ bot.on('ready', () => {
 })
 
 bot.on('interactionCreate', async (interaction) => {
-    if (!interaction.isCommand()) return
+    if (interaction.channel.id === process.env.channelId) {
+        if (!interaction.isCommand()) return
 
-    const { commandName } = interaction
+        const { commandName } = interaction
 
-    if (commandName === 'crypto') {
-        const option = interaction.options._hoistedOptions[0].name
-        const string = interaction.options.getString(option)
-
-        if (option === 'ajuda') {
-            const message = `-
-\n
-Welcome to **Crypto Bot**, te commands are as follow!
-
-Type /help for help and /crypto <coin> to get the results on your coins
-
-These are the currently watched coins but we have the option to suppot many others, as long as you get their id from coingecko's website
-  `
-            await interaction.reply(message)
-        } else if (option === 'moeda' || option === 'buscar') {
+        if (commandName === 'moeda') {
+            const option = interaction.options._hoistedOptions[0].name
+            const string = interaction.options.getString(option)
             const data = await getData(string)
-            if (data === 'Could not find coin with the given id') {
-                const message = ` - 
-                \n
-                **${data}**
-                `
+
+            if (!data.id) {
+                const message = ` -
+\n
+**${data}**
+`
                 await interaction.reply(message)
             } else {
-                const message = ` - 
+                const message = ` -
 .
-**${data.name}** *(${data.symbol.toUpperCase()})*
-**Valor Atual:**  $${data.current}  
+**${data.name}** *(${data.symbol})*
+**Valor Atual:**  $${data.current}
 \n
 **Variações**
 **Porcentagem:**  Últimas 24H: ${
@@ -93,7 +88,55 @@ These are the currently watched coins but we have the option to suppot many othe
 `
                 await interaction.reply(message)
             }
+        } else if (commandName === 'registros') {
+            const message = `-
+**Moedas registradas:**
+${choices.map((item) => `\n${item.name}`)}
+                `
+            await interaction.reply(message)
+        } else if (commandName === 'ajuda') {
+            const message = `-
+Para começar, todos os comandos do bot se iniciam com **/crypto**.
+
+Após o primeiro espaço vem o primeiro comando, atualmente estou habilitado nos comandos de busca de moeda, registradas e não registradas.
+As moedas registradas estão na opção **moeda** enquanto que para procurar por uma moeda que não esteja nos registros é necessário ir para a opção **buscar**.
+
+No caso de moedas não registradas é necessário saber o id da moeda seguindo a api do coinGecko, o site no qual eu me baseio para fazer buscas.
+
+Para ver a lista de moedas registradas utilize o comando **registros**
+`
+            await interaction.reply(message)
+        } else if (commandName === 'limpar') {
+            ;(async () => {
+                let deleted
+                do {
+                    deleted = await interaction.channel.bulkDelete(100)
+                } while (deleted.size != 0)
+            })()
         }
+    } else {
+        await interaction.reply(
+            `-
+Este bot funciona apenas no canal de texto **crypto-watcher**!`
+        )
+
+        setTimeout(() => {
+            bot.api
+                .webhooks(bot.user.id, interaction.token)
+                .messages('@original')
+                .delete()
+        }, 10000)
+    }
+})
+
+bot.on('messageCreate', async (msg) => {
+    if (msg.content === '$limpar') {
+        ;(async () => {
+            let deleted
+            do {
+                deleted = await msg.channel.bulkDelete(100)
+            } while (deleted.size != 0)
+        })()
     }
 })
 

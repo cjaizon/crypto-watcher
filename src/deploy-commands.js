@@ -10,32 +10,37 @@ const token = process.env.DISCORD_TOKEN
 
 const commands = [
     new SlashCommandBuilder()
-        .setName('crypto')
-        .setDescription('Replies with current specified coin info!')
+        .setName('moeda')
+        .setDescription('escolha de moeda registrada!')
         .addStringOption((option) =>
             option
-                .setName('moeda')
-                .setDescription('Escolha entre as moedas padrão do Bot!')
+                .setName('registro')
+                .setDescription('Escolha entre as moedas padrão do Bot')
                 .addChoice('BNB', 'binancecoin')
-                .addChoice('Bonus Cake', 'bonus-cake')
+                .addChoice('BonusCake', 'bonus-cake')
                 .addChoice('BTC', 'bitcoin')
                 .addChoice('BUSD', 'binance-usd')
                 .addChoice('CAKE', 'pancakeswap-token')
                 .addChoice('H2O', 'ifoswap-token')
                 .addChoice('GMEE', 'gamee')
+                .addChoice('KLAY', 'klaytn')
                 .addChoice('PVU', 'plant-vs-undead-token')
+                .addChoice('RHT', 'reward-hunters-token')
         )
         .addStringOption((option) =>
             option
-                .setName('buscar')
+                .setName('busca')
                 .setDescription('Faça uma busca pela moeda que você quer!')
-        )
-        .addStringOption((option) =>
-            option
-                .setName('ajuda')
-                .setDescription(' ')
-                .addChoice('Sobre', 'sobre')
         ),
+    new SlashCommandBuilder()
+        .setName('registros')
+        .setDescription('Lista de moedas registradas'),
+    new SlashCommandBuilder()
+        .setName('ajuda')
+        .setDescription('Informações relevantes sobre o bot'),
+    new SlashCommandBuilder()
+        .setName('limpar')
+        .setDescription('Limpa o chat atual'),
 ].map((command) => command.toJSON())
 
 const rest = new REST({ version: '9' }).setToken(token)
@@ -44,14 +49,4 @@ rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
     .then(() => console.log('Successfully registered application commands.'))
     .catch(console.error)
 
-const defaultCoins = [
-    'binancecoin',
-    'dogecoin',
-    'binance-usd',
-    'bitcoin',
-    'bonus-cake',
-    'pancakeswap-token',
-    'ifoswap-token',
-    'gamee',
-    'plant-vs-undead-token',
-]
+export default commands
